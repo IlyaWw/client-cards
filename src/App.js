@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import SearchInput from './components/SearchInput';
 import ClientCard from './components/ClientCard';
+import { ADD_CLIENT_CARDS } from './redux/actions';
 
 const useStyles = makeStyles({
   root: {
@@ -21,16 +23,17 @@ const useStyles = makeStyles({
 });
 
 function App() {
-  const [data, setData] = useState([]);
   const [order, setOrder] = useState('');
   const [client, setClient] = useState('');
+  const cards = useSelector(state => state.clientCards.cards);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios(
         'http://www.mocky.io/v2/5e7cef003500001890069fde'
       );
-      setData(result.data);
+      dispatch({ type: ADD_CLIENT_CARDS, payload: result.data });
     };
     fetchData();
   }, []);
@@ -48,8 +51,8 @@ function App() {
         />
       </div>
       <Grid container spacing={2}>
-        {data &&
-          data
+        {cards &&
+          cards
             .filter(record => record.id.includes(order))
             .filter(record =>
               record.client.name.toLowerCase().includes(client.toLowerCase())

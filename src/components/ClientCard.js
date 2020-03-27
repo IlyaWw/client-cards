@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import TagList from './TagList';
+import { TOGGLE_CLIENT_CARD_CHECKED } from '../redux/actions';
 
 const useStyles = makeStyles({
   root: {
     '&:hover': {
       position: 'absolute',
-      width: 'inherit'
     },
   },
   block: {
@@ -31,8 +33,15 @@ const useStyles = makeStyles({
 function ClientCard(props) {
   const [isHovered, setIsHovered] = useState(false);
   const { data } = props;
-
+  const dispatch = useDispatch();
   const classes = useStyles();
+  const checked = useSelector(
+    state => state.clientCards.cards.find(card => card.id === data.id).checked
+  );
+
+  const handleCheck = event => {
+    dispatch({ type: TOGGLE_CLIENT_CARD_CHECKED, payload: event.target.value });
+  };
 
   return (
     <Card
@@ -42,9 +51,21 @@ function ClientCard(props) {
       className={classes.root}
     >
       <CardContent>
-        <div className={`${classes.header} ${classes.block}`}>
-          Проверить данные клиента
-        </div>
+        <Grid container className={classes.block}>
+          <Grid item xs={10} className={classes.header}>
+            Проверить
+            <br />
+            данные клиента
+          </Grid>
+          <Grid item xs={2}>
+            <Checkbox
+              value={data.id}
+              checked={checked}
+              color="primary"
+              onChange={handleCheck}
+            />
+          </Grid>
+        </Grid>
         <div className={classes.block}>
           {Number(data.sum).toLocaleString()} руб.
         </div>
